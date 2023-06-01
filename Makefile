@@ -3,7 +3,7 @@ AS=armclang
 LD=armlink
 
 ASFLAGS= -gdwarf-3 -c --target=aarch64-arm-none-eabi
-CFLAGS=  -gdwarf-3 -c --target=aarch64-arm-none-eabi -I"./headers" -O1
+CFLAGS=  -gdwarf-3 -c --target=aarch64-arm-none-eabi -I"./include" -O1
 
 # Select build rules based on Windows or Unix
 ifdef WINDIR
@@ -28,14 +28,17 @@ clean:
 	$(call RM,*.o)
 	$(call RM,image_smmu.axf)
 
+pl011_uart.o: ./src/pl011_uart.c
+	$(CC) ${CFLAGS} ./src/pl011_uart.c
+
 main.o: ./src/main.c
 	$(CC) ${CFLAGS} ./src/main.c
 
 startup.o: ./asm/startup.s
 	$(AS) ${ASFLAGS} ./asm/startup.s
 
-image_smmu.axf: startup.o main.o scatter.txt
-	$(LD) --scatter=scatter.txt startup.o main.o -o image_smmu.axf --entry=start64
+image_smmu.axf: startup.o main.o pl011_uart.o scatter.txt
+	$(LD) --scatter=scatter.txt startup.o main.o pl011_uart.o -o image_smmu.axf --entry=start64
 
 run:
-	FVP_Base_RevC-2xAEMvA -a ./image_smmu.axf -C bp.secure_memory=false -C cache_state_modelled=0
+	@FVP_Base_RevC-2xAEMvA -a ./image_smmu.axf -C bp.secure_memory=false -C cache_state_modelled=0
