@@ -34,11 +34,14 @@ pl011_uart.o: ./src/pl011_uart.c
 main.o: ./src/main.c
 	$(CC) ${CFLAGS} ./src/main.c
 
+vector.o: ./asm/vector.s
+	$(AS) ${ASFLAGS} ./asm/vector.s
+
 startup.o: ./asm/startup.s
 	$(AS) ${ASFLAGS} ./asm/startup.s
 
-image_smmu.axf: startup.o main.o pl011_uart.o scatter.txt
-	$(LD) --scatter=scatter.txt startup.o main.o pl011_uart.o -o image_smmu.axf --entry=start64
+image_smmu.axf: startup.o vector.o main.o pl011_uart.o scatter.txt
+	$(LD) --scatter=scatter.txt startup.o vector.o main.o pl011_uart.o -o image_smmu.axf --entry=start64
 
 run:
 	@FVP_Base_RevC-2xAEMvA -a ./image_smmu.axf -C bp.secure_memory=false -C cache_state_modelled=0
