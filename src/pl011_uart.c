@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include "pl011_uart.h"
 
+__asm (".global __use_no_semihosting");
+
 struct __FILE {
     int handle;
 } __stdout;
