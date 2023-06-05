@@ -4,8 +4,8 @@
 
     .section VECTORS,"ax"
     .align 12
-
     .global vectors
+    .global fiqHandler
 
 vectors:
 
@@ -22,7 +22,7 @@ irq_current_el_sp0:
 
     .balign 128
 fiq_current_el_sp0:
-    B   .       // FIQ or vFIQ
+    B   fiqHighLevelHandler       // FIQ or vFIQ
 
     .balign 128
 serror_current_el_sp0:
@@ -41,7 +41,7 @@ irq_current_el_spx:
 
     .balign 128
 fiq_current_el_spx:
-    B   .       // FIQ or vFIQ
+    B   fiqHighLevelHandler       // FIQ or vFIQ
 
     .balign 128
 serror_current_el_spx:
@@ -60,7 +60,7 @@ irq_lower_el_aarch64:
 
     .balign 128
 fiq_lower_el_aarch64:
-    B   .       // FIQ or vFIQ
+    B   fiqHighLevelHandler       // FIQ or vFIQ
 
     .balign 128
 serror_lower_el_aarch64:
@@ -79,10 +79,37 @@ irq_lower_el_aarch32:
 
     .balign 128
 fiq_lower_el_aarch32:
-    B   .       // FIQ or vFIQ
+    B   fiqHighLevelHandler       // FIQ or vFIQ
 
     .balign 128
 serror_lower_el_aarch32:
     B   .       // SError or vSError
 
+fiqHighLevelHandler:
+    STP x29, x30, [sp, #-16]!
+    STP x18, x19, [sp, #-16]!
+    STP x16, x17, [sp, #-16]!
+    STP x14, x15, [sp, #-16]!
+    STP x12, x13, [sp, #-16]!
+    STP x10, x11, [sp, #-16]!
+    STP  x8,  x9, [sp, #-16]!
+    STP  x6,  x7, [sp, #-16]!
+    STP  x4,  x5, [sp, #-16]!
+    STP  x2,  x3, [sp, #-16]!
+    STP  x0,  x1, [sp, #-16]!
+
+    BL fiqHandler
+
+    LDP  x0,  x1, [sp], #16
+    LDP  x2,  x3, [sp], #16
+    LDP  x4,  x5, [sp], #16
+    LDP  x6,  x7, [sp], #16
+    LDP  x8,  x9, [sp], #16
+    LDP x10, x11, [sp], #16
+    LDP x12, x13, [sp], #16
+    LDP x14, x15, [sp], #16
+    LDP x16, x17, [sp], #16
+    LDP x18, x19, [sp], #16
+    LDP x29, x30, [sp], #16
+    ERET
 

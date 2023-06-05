@@ -1,0 +1,6 @@
+void fiqHandler(void)
+{
+
+    return;
+}
+
