@@ -28,6 +28,9 @@ clean:
 	$(call RM,*.o)
 	$(call RM,image_smmu.axf)
 
+01_dump_ird0.o: ./test_case/01_dump_ird0.c
+	$(CC) ${CFLAGS} ./test_case/01_dump_ird0.c
+
 interrupts.o: ./src/interrupts.c
 	$(CC) ${CFLAGS} ./src/interrupts.c
 
@@ -46,8 +49,8 @@ vector.o: ./asm/vector.s
 startup.o: ./asm/startup.s
 	$(AS) ${ASFLAGS} ./asm/startup.s
 
-image_smmu.axf: startup.o vector.o gicv3.o main.o pl011_uart.o interrupts.o scatter.txt
-	$(LD) --scatter=scatter.txt startup.o vector.o gicv3.o main.o pl011_uart.o interrupts.o -o image_smmu.axf --entry=start64
+image_smmu.axf: startup.o vector.o gicv3.o main.o pl011_uart.o interrupts.o 01_dump_ird0.o scatter.txt
+	$(LD) --scatter=scatter.txt startup.o vector.o gicv3.o main.o pl011_uart.o interrupts.o 01_dump_ird0.o -o image_smmu.axf --entry=start64
 
 run:
 	@FVP_Base_RevC-2xAEMvA -a ./image_smmu.axf -C bp.secure_memory=false -C cache_state_modelled=0
