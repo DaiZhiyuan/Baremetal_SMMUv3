@@ -1,16 +1,19 @@
 #include <stdio.h>
 
 #include "pl011_uart.h"
+#include "testcase.h"
 
 extern void gicInit(void);
-extern void dump_smmu_idr0(void);
 
 int main(void)
 {
-    uartInit((void*)(0x1C090000));
+	/* Infrastructure initialization segment */
+    uartInit();
     gicInit();
 
+    /* The actual testcase segment */
     dump_smmu_idr0();
+    dump_smmu_idr1();
 
     return 0;
 }

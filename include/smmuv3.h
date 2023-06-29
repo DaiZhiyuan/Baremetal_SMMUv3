@@ -73,7 +73,7 @@ struct smmuv3
     const volatile uint32_t SMMU_S_IDR3;			// +0x800C - RO
     const volatile uint32_t SMMU_S_IDR4;			// +0x8010 - RO
 
-} *smmu = (struct smmuv3*)SMMU_BASE_ADDR;
+};
 
 /* SMMU_IDR0 field descriptions */
 #define ST_LEVEL_SHIFT 27
@@ -124,6 +124,30 @@ struct smmuv3
 #define S1P_MASK (0x1 << S1P_SHIFT)
 #define S2P_SHIFT 0
 #define S2P_MASK (0x1 << S2P_SHIFT)
+
+/* SMMU_IDR1 field descriptions */
+#define ECMDQ_SHIFT 31
+#define ECMDQ_MASK (0x1 << ECMDQ_SHIFT)
+#define TABLES_PRESET_SHIFT 30
+#define TABLES_PRESET_MASK (0x1 << TABLES_PRESET_SHIFT)
+#define QUEUES_PRESET_SHIFT	29
+#define QUEUES_PRESET_MASK (0x1 << QUEUES_PRESET_SHIFT)
+#define REL_SHIFT 28
+#define REL_MASK (0x1 << REL_SHIFT)
+#define ATTR_TYPES_OVR_SHIFT 27
+#define ATTR_TYPES_OVR_MASK (0x1 << ATTR_TYPES_OVR_SHIFT)
+#define ATTR_PERMS_OVR_SHIFT 26
+#define ATTR_PERMS_OVR_MASK (0x1 << ATTR_PERMS_OVR_SHIFT)
+#define CMDQS_SHIFT 21
+#define CMDQS_MASK (0x1f << CMDQS_SHIFT)
+#define EVENTQS_SHIFT 16
+#define EVENTQS_MASK (0x1f << EVENTQS_SHIFT)
+#define PRIQS_SHIFT 11
+#define PRIQS_MASK (0x1f << PRIQS_SHIFT)
+#define SSIDSIZE_SHIFT 6
+#define SSIDSIZE_MASK (0x1f << SSIDSIZE_SHIFT)
+#define SIDSIZE_SHIFT 0
+#define SIDSIZE_MASK (0x1f << SIDSIZE_SHIFT)
 
 #define GET_FIELD(reg,mask,shift)	(((smmu->reg) & (mask)) >> (shift))
 #define OFFSETOF(type, member) ((uint64_t) & ((type*)0)->member)

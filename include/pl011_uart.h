@@ -4,6 +4,8 @@
 #ifndef PL011_UART_H
 #define PL011_UART_H
 
-void uartInit(void* addr);
+#define UART_BASE_ADDR		0x1C090000
+
+void uartInit();
 
 #endif

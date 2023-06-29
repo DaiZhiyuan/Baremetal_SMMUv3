@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include "smmuv3.h"
 
+static struct smmuv3* smmu = (struct smmuv3*)SMMU_BASE_ADDR;
+
 void dump_smmu_idr0(void)
 {
 	printf("SMMU_IDR0: 0x%x\n", smmu->SMMU_IDR0);

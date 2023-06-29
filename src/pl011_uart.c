@@ -56,8 +56,8 @@ struct pl011_uart {
         volatile unsigned int UARTDMACR;     // +0x48
 } *uart;
 
-void uartInit(void* addr) {
-    uart = (struct pl011_uart*) addr;
+void uartInit() {
+    uart = (struct pl011_uart*) UART_BASE_ADDR;
 
     // Ensure UART is disabled
     uart->UARTCR  = 0x0;
