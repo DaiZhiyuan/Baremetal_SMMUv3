@@ -149,6 +149,10 @@ struct smmuv3
 #define SIDSIZE_SHIFT 0
 #define SIDSIZE_MASK (0x1f << SIDSIZE_SHIFT)
 
+/* SMMU_IDR2 field descriptions */
+#define BA_VATOS_SHIFT 0
+#define BA_VATOS_MASK (0x1ff << BA_VATOS_SHIFT)
+
 #define GET_FIELD(reg,mask,shift)	(((smmu->reg) & (mask)) >> (shift))
 #define OFFSETOF(type, member) ((uint64_t) & ((type*)0)->member)
 

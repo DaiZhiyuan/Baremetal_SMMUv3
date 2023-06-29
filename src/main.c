@@ -14,6 +14,7 @@ int main(void)
     /* The actual testcase segment */
     dump_smmu_idr0();
     dump_smmu_idr1();
+    dump_smmu_idr2();
 
     return 0;
 }
