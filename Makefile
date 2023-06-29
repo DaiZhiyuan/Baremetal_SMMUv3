@@ -21,15 +21,19 @@ RM=rm -f $(1)
 endif
 endif
 
+TESTCASE_SRCS := $(wildcard test_case/*.c)
+TESTCASE_OBJS := $(TESTCASE_SRCS:.c=.o)
+
 all: image_smmu.axf
 	$(call DONE,$(EXECUTABLE))
 
 clean:
-	$(call RM,*.o)
-	$(call RM,image_smmu.axf)
+	$(call RM, image_smmu.axf)
+	$(call RM, *.o)
+	$(call RM, $(TESTCASE_OBJS))
 
-01_dump_ird0.o: ./test_case/01_dump_ird0.c
-	$(CC) ${CFLAGS} ./test_case/01_dump_ird0.c
+$(TESTCASE_OBJS) : %.o : %.c
+	$(CC) ${CFLAGS} -o $@ -c $^
 
 interrupts.o: ./src/interrupts.c
 	$(CC) ${CFLAGS} ./src/interrupts.c
@@ -49,8 +53,8 @@ vector.o: ./asm/vector.s
 startup.o: ./asm/startup.s
 	$(AS) ${ASFLAGS} ./asm/startup.s
 
-image_smmu.axf: startup.o vector.o gicv3.o main.o pl011_uart.o interrupts.o 01_dump_ird0.o scatter.txt
-	$(LD) --scatter=scatter.txt startup.o vector.o gicv3.o main.o pl011_uart.o interrupts.o 01_dump_ird0.o -o image_smmu.axf --entry=start64
+image_smmu.axf: startup.o vector.o gicv3.o main.o pl011_uart.o interrupts.o $(TESTCASE_OBJS) scatter.txt
+	$(LD) --scatter=scatter.txt startup.o vector.o gicv3.o main.o pl011_uart.o interrupts.o $(TESTCASE_OBJS) -o image_smmu.axf --entry=start64
 
 run:
 	@FVP_Base_RevC-2xAEMvA -a ./image_smmu.axf -C bp.secure_memory=false -C cache_state_modelled=0
