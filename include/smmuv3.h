@@ -72,7 +72,6 @@ struct smmuv3
     const volatile uint32_t SMMU_S_IDR2;			// +0x8008 - RO
     const volatile uint32_t SMMU_S_IDR3;			// +0x800C - RO
     const volatile uint32_t SMMU_S_IDR4;			// +0x8010 - RO
-
 };
 
 /* SMMU_IDR0 field descriptions */

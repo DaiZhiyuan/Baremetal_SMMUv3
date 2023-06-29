@@ -7,7 +7,7 @@ extern void gicInit(void);
 
 int main(void)
 {
-	/* Infrastructure initialization segment */
+    /* Infrastructure initialization segment */
     uartInit();
     gicInit();
 

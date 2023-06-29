@@ -28,9 +28,9 @@ all: image_smmu.axf
 	$(call DONE,$(EXECUTABLE))
 
 clean:
-	$(call RM, image_smmu.axf)
-	$(call RM, *.o)
-	$(call RM, $(TESTCASE_OBJS))
+	@$(call RM, image_smmu.axf)
+	@$(call RM, *.o)
+	@$(call RM, $(TESTCASE_OBJS))
 
 $(TESTCASE_OBJS) : %.o : %.c
 	$(CC) ${CFLAGS} -o $@ -c $^
@@ -41,8 +41,8 @@ interrupts.o: ./src/interrupts.c
 pl011_uart.o: ./src/pl011_uart.c
 	$(CC) ${CFLAGS} ./src/pl011_uart.c
 
-main.o: ./src/main.c
-	$(CC) ${CFLAGS} ./src/main.c
+kernel.o: ./src/kernel.c
+	$(CC) ${CFLAGS} ./src/kernel.c
 
 gicv3.o: ./asm/gicv3.s
 	$(AS) ${ASFLAGS} ./asm/gicv3.s
@@ -53,8 +53,8 @@ vector.o: ./asm/vector.s
 startup.o: ./asm/startup.s
 	$(AS) ${ASFLAGS} ./asm/startup.s
 
-image_smmu.axf: startup.o vector.o gicv3.o main.o pl011_uart.o interrupts.o $(TESTCASE_OBJS) scatter.txt
-	$(LD) --scatter=scatter.txt startup.o vector.o gicv3.o main.o pl011_uart.o interrupts.o $(TESTCASE_OBJS) -o image_smmu.axf --entry=start64
+image_smmu.axf: startup.o vector.o gicv3.o kernel.o pl011_uart.o interrupts.o $(TESTCASE_OBJS) scatter.txt
+	$(LD) --scatter=scatter.txt startup.o vector.o gicv3.o kernel.o pl011_uart.o interrupts.o $(TESTCASE_OBJS) -o image_smmu.axf --entry=start64
 
 run:
 	@FVP_Base_RevC-2xAEMvA -a ./image_smmu.axf -C bp.secure_memory=false -C cache_state_modelled=0
