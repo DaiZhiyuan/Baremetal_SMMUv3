@@ -176,6 +176,8 @@ struct smmuv3
 #define HAD_SHIFT 2
 #define HAD_MASK (0x1 << HAD_SHIFT)
 
+/* SMMU_IDR4 field is IMPLEMENTATION_DEFINED */
+
 #define GET_FIELD(reg,mask,shift)	(((smmu->reg) & (mask)) >> (shift))
 #define OFFSETOF(type, member) ((uint64_t) & ((type*)0)->member)
 
