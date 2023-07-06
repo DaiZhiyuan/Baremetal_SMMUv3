@@ -15,6 +15,7 @@ int main(void)
     dump_smmu_idr0();
     dump_smmu_idr1();
     dump_smmu_idr2();
+    dump_smmu_idr3();
 
     return 0;
 }

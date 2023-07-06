@@ -152,6 +152,30 @@ struct smmuv3
 #define BA_VATOS_SHIFT 0
 #define BA_VATOS_MASK (0x1ff << BA_VATOS_SHIFT)
 
+/* SMMU_IDR3 field descriptions */
+#define PTWNNC_SHIFT 14
+#define PTWNNC_MASK (0x1 << PTWNNC_SHIFT)
+#define E0PD_SHIFT 13
+#define E0PD_MASK (0x1 << E0PD_SHIFT)
+#define BBML_SHIFT 11
+#define BBML_MASK (0x3 << BBML_SHIFT)
+#define RIL_SHIFT 10
+#define RIL_MASK (0x1 << RIL_SHIFT)
+#define STT_SHIFT 9
+#define STT_MASK (0x1 << STT_SHIFT)
+#define FWB_SHIFT 8
+#define FWB_MASK (0x1 << FWB_SHIFT)
+#define MPAM_SHIFT 7
+#define MPAM_MASK (0x1 << MPAM_SHIFT)
+#define PPS_SHIFT 5
+#define PPS_MASK (0x1 << PPS_SHIFT)
+#define XNX_SHIFT 4
+#define XNX_MASK (0x1 << XNX_SHIFT)
+#define PBHA_SHIFT 3
+#define PBHA_MASK (0x1 << PBHA_SHIFT)
+#define HAD_SHIFT 2
+#define HAD_MASK (0x1 << HAD_SHIFT)
+
 #define GET_FIELD(reg,mask,shift)	(((smmu->reg) & (mask)) >> (shift))
 #define OFFSETOF(type, member) ((uint64_t) & ((type*)0)->member)
 
