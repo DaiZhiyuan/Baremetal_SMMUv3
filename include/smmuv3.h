@@ -178,6 +178,20 @@ struct smmuv3
 
 /* SMMU_IDR4 field is IMPLEMENTATION_DEFINED */
 
+/* SMMU_IDR5 field descriptions */
+#define STALL_MAX_SHIFT 16
+#define STALL_MAX_MASK (0xffff << STALL_MAX_SHIFT)
+#define VAX_SHIFT 10
+#define VAX_MASK (0x3 << VAX_SHIFT)
+#define GRAN64K_SHIFT 6
+#define GRAN64K_MASK (0x1 << GRAN64K_SHIFT)
+#define GRAN16K_SHIFT 5
+#define GRAN16K_MASK (0x1 << GRAN16K_SHIFT)
+#define GRAN4K_SHIFT 4
+#define GRAN4K_MASK (0x1 << GRAN4K_SHIFT)
+#define OAS_SHIFT 0
+#define OAS_MASK (0x7 << OAS_SHIFT)
+
 #define GET_FIELD(reg,mask,shift)	(((smmu->reg) & (mask)) >> (shift))
 #define OFFSETOF(type, member) ((uint64_t) & ((type*)0)->member)
 

@@ -1,6 +1,6 @@
 void fiqHandler(void)
 {
-    /* nothingo */
+    /* nothing */
 
     return;
 }
