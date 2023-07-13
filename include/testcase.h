@@ -7,5 +7,6 @@ extern void dump_smmu_idr2(void);
 extern void dump_smmu_idr3(void);
 extern void dump_smmu_idr4(void);
 extern void dump_smmu_idr5(void);
+extern void dump_smmu_idr6(void);
 
 #endif /* __TESTCASE_H__ */

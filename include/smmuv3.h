@@ -192,6 +192,12 @@ struct smmuv3
 #define OAS_SHIFT 0
 #define OAS_MASK (0x7 << OAS_SHIFT)
 
+/* SMMU_IDR6 field descriptions */
+#define CMDQ_CONTROL_PAGE_LOG2NUMP_SHIFT 24
+#define CMDQ_CONTROL_PAGE_LOG2NUMP_MASK (0xf << CMDQ_CONTROL_PAGE_LOG2NUMP_SHIFT)
+#define CMDQ_CONTROL_PAGE_LOG2NUMQ_SHIFT 16
+#define CMDQ_CONTROL_PAGE_LOG2NUMQ_MASK (0xf << CMDQ_CONTROL_PAGE_LOG2NUMQ_SHIFT)
+
 #define GET_FIELD(reg,mask,shift)	(((smmu->reg) & (mask)) >> (shift))
 #define OFFSETOF(type, member) ((uint64_t) & ((type*)0)->member)
 
