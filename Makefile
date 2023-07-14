@@ -29,6 +29,7 @@ all: image_smmu.axf
 
 clean:
 	@$(call RM, image_smmu.axf)
+	@$(call RM, image_smmu.hex)
 	@$(call RM, *.o)
 	@$(call RM, $(TESTCASE_OBJS))
 
@@ -55,6 +56,7 @@ startup.o: ./asm/startup.s
 
 image_smmu.axf: startup.o vector.o gicv3.o kernel.o pl011_uart.o interrupts.o $(TESTCASE_OBJS) scatter.txt
 	$(LD) --scatter=scatter.txt startup.o vector.o gicv3.o kernel.o pl011_uart.o interrupts.o $(TESTCASE_OBJS) -o image_smmu.axf --entry=start64
+	@fromelf --vhx image_smmu.axf --output image_smmu.hex
 
 run:
-	@FVP_Base_RevC-2xAEMvA -a ./image_smmu.axf -C bp.secure_memory=false -C cache_state_modelled=0
+	@FVP_Base_RevC-2xAEMvA -a ./image_smmu.hex -C bp.secure_memory=false -C cache_state_modelled=0
