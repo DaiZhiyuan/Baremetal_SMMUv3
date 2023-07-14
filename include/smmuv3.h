@@ -208,6 +208,12 @@ struct smmuv3
 #define Implementer_SHIFT 0
 #define Implementer_MASK (0xfff << Implementer_SHIFT)
 
+/* SMMU_AIDR field descriptions */
+#define ArchMajorRev_SHIFT 4
+#define ArchMajorRev_MASK (0xf << ArchMajorRev_SHIFT)
+#define ArchMinorRev_SHIFT 0
+#define ArchMinorRev_MASK (0xf << ArchMinorRev_SHIFT)
+
 #define GET_FIELD(reg,mask,shift)	(((smmu->reg) & (mask)) >> (shift))
 #define OFFSETOF(type, member) ((uint64_t) & ((type*)0)->member)
 
