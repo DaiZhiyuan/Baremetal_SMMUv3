@@ -19,6 +19,7 @@ int main(void)
     dump_smmu_idr4();
     dump_smmu_idr5();
     dump_smmu_idr6();
+    dump_smmu_iidr();
 
     return 0;
 }

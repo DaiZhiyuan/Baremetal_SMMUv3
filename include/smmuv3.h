@@ -198,6 +198,16 @@ struct smmuv3
 #define CMDQ_CONTROL_PAGE_LOG2NUMQ_SHIFT 16
 #define CMDQ_CONTROL_PAGE_LOG2NUMQ_MASK (0xf << CMDQ_CONTROL_PAGE_LOG2NUMQ_SHIFT)
 
+/* SMMU_IIDR field descriptions */
+#define ProductID_SHIFT 20
+#define ProductID_MASK (0xfff << ProductID_SHIFT)
+#define Variant_SHIFT 16
+#define Variant_MASK (0xf << Variant_SHIFT)
+#define Revision_SHIFT 12
+#define Revision_MASK (0xf << Revision_SHIFT)
+#define Implementer_SHIFT 0
+#define Implementer_MASK (0xfff << Implementer_SHIFT)
+
 #define GET_FIELD(reg,mask,shift)	(((smmu->reg) & (mask)) >> (shift))
 #define OFFSETOF(type, member) ((uint64_t) & ((type*)0)->member)
 
