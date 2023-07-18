@@ -10,5 +10,6 @@ extern void dump_smmu_idr5(void);
 extern void dump_smmu_idr6(void);
 extern void dump_smmu_iidr(void);
 extern void dump_smmu_aidr(void);
+extern void check_offset(void);
 
 #endif /* __TESTCASE_H__ */

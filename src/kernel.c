@@ -42,5 +42,7 @@ int main(void)
     dump_smmu_iidr();
     dump_smmu_aidr();
 
+    check_offset();
+
     return 0;
 }
