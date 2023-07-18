@@ -100,3 +100,8 @@ void _sys_exit(int rc)
         __asm("WFE");
     }
 }
+
+void _ttywrch(int ch)
+{
+	printf("%c", ch);
+}

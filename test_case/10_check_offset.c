@@ -4,8 +4,6 @@
 
 static struct smmuv3* smmu = (struct smmuv3*)SMMU_BASE_ADDR;
 
-#define DEBUG
-
 void check_offset(void)
 {
 	/*
@@ -42,4 +40,5 @@ void check_offset(void)
 	printf("SMMU_AIDR offset:0x%lx\n", OFFSETOF(struct smmuv3, SMMU_AIDR));
 	printf("SMMU_IDR6 offset:0x%lx\n", OFFSETOF(struct smmuv3, SMMU_IDR6));
 #endif
+
 }

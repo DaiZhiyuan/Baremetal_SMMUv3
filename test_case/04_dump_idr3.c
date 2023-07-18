@@ -1,10 +1,18 @@
 #include <stdio.h>
+#include <assert.h>
 #include "smmuv3.h"
 
 static struct smmuv3* smmu = (struct smmuv3*)SMMU_BASE_ADDR;
 
 void dump_smmu_idr3(void)
 {
+	/*
+	 * FVP model:
+	 * 	 pci.pci_smmuv3.mmu.SMMU_IDR3=20
+	 */
+	assert(smmu->SMMU_IDR3 == 0x14);
+
+#ifdef DEBUG
 	  printf("SMMU_IDR3: 0x%x\n", smmu->SMMU_IDR3);
 	  printf("\t PTWNNC: %u\n", GET_FIELD(SMMU_IDR3, PTWNNC_MASK, PTWNNC_SHIFT));
 	  printf("\t E0PD: %u\n", GET_FIELD(SMMU_IDR3, E0PD_MASK, E0PD_SHIFT));
@@ -17,5 +25,7 @@ void dump_smmu_idr3(void)
 	  printf("\t XNX: %u\n", GET_FIELD(SMMU_IDR3, XNX_MASK, XNX_SHIFT));
 	  printf("\t PBHA: %u\n", GET_FIELD(SMMU_IDR3, PBHA_MASK, PBHA_SHIFT));
 	  printf("\t HAD: %u\n", GET_FIELD(SMMU_IDR3, HAD_MASK, HAD_SHIFT));
+#endif
+
 }
 

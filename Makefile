@@ -3,7 +3,7 @@ AS=armclang
 LD=armlink
 
 ASFLAGS= -gdwarf-3 -c --target=aarch64-arm-none-eabi
-CFLAGS=  -gdwarf-3 -c --target=aarch64-arm-none-eabi -I"./include" -O1
+CFLAGS=  -gdwarf-3 -c --target=aarch64-arm-none-eabi -I"./include" -O1 -DDEBUG
 
 # Select build rules based on Windows or Unix
 ifdef WINDIR

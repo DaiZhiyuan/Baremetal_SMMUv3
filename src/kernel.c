@@ -29,7 +29,9 @@ int main(void)
     uartInit();
     gicInit();
 
+#ifdef DEBUG
     printf("Current Exception Level: [%d]\n\n", get_currentEL());
+#endif
 
     /* The actual testcase segment */
     dump_smmu_idr0();
@@ -43,6 +45,10 @@ int main(void)
     dump_smmu_aidr();
 
     check_offset();
+
+#ifdef DEBUG
+    printf("=== ALL TEST CASE PASS ===\n");
+#endif
 
     return 0;
 }
