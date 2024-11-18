@@ -24,7 +24,7 @@ endif
 TESTCASE_SRCS := $(wildcard test_case/*.c)
 TESTCASE_OBJS := $(TESTCASE_SRCS:.c=.o)
 
-all: image_smmu.axf
+all: ./prebuild/image_smmu.hex
 	$(call DONE,$(EXECUTABLE))
 
 clean:
@@ -59,4 +59,4 @@ image_smmu.axf: startup.o vector.o gicv3.o kernel.o pl011_uart.o interrupts.o $(
 	@fromelf --vhx image_smmu.axf --output image_smmu.hex
 
 run:
-	@FVP_Base_RevC-2xAEMvA -a ./image_smmu.hex -C bp.secure_memory=false -C cache_state_modelled=0
+	@FVP_Base_RevC-2xAEMvA -a ./prebuild/image_smmu.hex -C bp.secure_memory=false -C cache_state_modelled=0
