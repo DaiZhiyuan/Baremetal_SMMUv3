@@ -1,11 +1,8 @@
 #include <stdio.h>
+#include <stddef.h>
+#include <stdint.h>
+#include <stdarg.h>
 #include "pl011_uart.h"
-
-__asm (".global __use_no_semihosting");
-
-struct __FILE {
-    int handle;
-} __stdout;
 
 // Useful defines for control/status registes
 #define PL011_LCR_WORD_LENGTH_8   (0x60)
@@ -78,7 +75,7 @@ void uartInit() {
     return;
 }
 
-int fputc(int c, FILE *f) {
+static void uartPutChar(char c) {
     // Wait until FIFO or TX register has space
     while ((uart->UARTFR & PL011_FR_TXFF_FLAG) != 0x0) {}
 
@@ -86,22 +83,168 @@ int fputc(int c, FILE *f) {
     uart->UARTDR = c;
 
     // Model requires us to manually send a carriage return
-    if ((char)c == '\n') {
+    if (c == '\n') {
         while ((uart->UARTFR & PL011_FR_TXFF_FLAG) != 0x0) {}
         uart->UARTDR = '\r';
     }
+}
+
+static void uartPutString(const char *s) {
+    while (*s != '\0') {
+        uartPutChar(*s++);
+    }
+}
+
+static void uartPutUnsigned(uint64_t value, unsigned int base, int uppercase) {
+    static const char lower[] = "0123456789abcdef";
+    static const char upper[] = "0123456789ABCDEF";
+    const char *digits = uppercase ? upper : lower;
+    char buf[32];
+    int i = 0;
+
+    if (value == 0) {
+        uartPutChar('0');
+        return;
+    }
+
+    while (value != 0) {
+        buf[i++] = digits[value % base];
+        value /= base;
+    }
+
+    while (i > 0) {
+        uartPutChar(buf[--i]);
+    }
+}
+
+static void uartPutSigned(int64_t value) {
+    if (value < 0) {
+        uartPutChar('-');
+        uartPutUnsigned((uint64_t)(-value), 10, 0);
+    } else {
+        uartPutUnsigned((uint64_t)value, 10, 0);
+    }
+}
+
+int printf(const char *fmt, ...) {
+    va_list ap;
+
+    va_start(ap, fmt);
+
+    while (*fmt != '\0') {
+        int is_long = 0;
+
+        if (*fmt != '%') {
+            uartPutChar(*fmt++);
+            continue;
+        }
+
+        fmt++;
+
+        if (*fmt == 'l') {
+            is_long = 1;
+            fmt++;
+        }
+
+        switch (*fmt) {
+        case 'd':
+            if (is_long) {
+                uartPutSigned(va_arg(ap, long));
+            } else {
+                uartPutSigned(va_arg(ap, int));
+            }
+            break;
+        case 'u':
+            uartPutUnsigned(va_arg(ap, unsigned int), 10, 0);
+            break;
+        case 'x':
+            uartPutUnsigned(va_arg(ap, unsigned int), 16, 0);
+            break;
+        case 'X':
+            uartPutUnsigned(va_arg(ap, unsigned int), 16, 1);
+            break;
+        case 'c':
+            uartPutChar((char)va_arg(ap, int));
+            break;
+        case 's':
+            uartPutString(va_arg(ap, const char *));
+            break;
+        case '%':
+            uartPutChar('%');
+            break;
+        default:
+            uartPutChar('%');
+            if (*fmt != '\0') {
+                uartPutChar(*fmt);
+            }
+            break;
+        }
+
+        if (*fmt != '\0') {
+            fmt++;
+        }
+    }
+
+    va_end(ap);
 
     return 0;
 }
 
-void _sys_exit(int rc)
+int fputc(int c, FILE *f) {
+    (void)f;
+
+    uartPutChar((char)c);
+
+    return 0;
+}
+
+int _write(int fd, char *buf, int len) {
+    int i;
+
+    (void)fd;
+
+    for (i = 0; i < len; i++) {
+        uartPutChar(buf[i]);
+    }
+
+    return len;
+}
+
+void _exit(int rc)
 {
+    (void)rc;
+
     while(1) {
-        __asm("WFE");
+        __asm__ volatile("WFE");
     }
 }
 
-void _ttywrch(int ch)
+void __assert_func(const char *file, int line, const char *func, const char *expr)
 {
-	printf("%c", ch);
+    printf("ASSERT FAILED: %s:%d: %s: %s\n", file, line, func ? func : "", expr);
+    _exit(1);
+}
+
+extern char __heap_start[];
+extern char __heap_end[];
+
+static char *heap_end;
+
+void *_sbrk(ptrdiff_t incr)
+{
+    char *prev;
+
+    if (heap_end == NULL) {
+        heap_end = __heap_start;
+    }
+
+    prev = heap_end;
+
+    if (incr < 0 || incr > (__heap_end - heap_end)) {
+        return (void *)-1;
+    }
+
+    heap_end += incr;
+
+    return prev;
 }

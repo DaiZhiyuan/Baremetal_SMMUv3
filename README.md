@@ -44,7 +44,7 @@ File list
 ├── LICENSE
 ├── Makefile
 ├── README.md
-├── scatter.txt
+├── linker.ld
 ├── src
 │   ├── interrupts.c
 │   ├── kernel.c
@@ -62,30 +62,27 @@ File list
     └── 10_check_offset.c
 ```
 
-Code of line
-============
-```
--------------------------------------------------------------------------------
-Language                     files          blank        comment           code
--------------------------------------------------------------------------------
-C                               13             83             63            301
-C/C++ Header                     3             19             12            215
-Assembly                         3             42             45            150
-make                             1             14              1             47
--------------------------------------------------------------------------------
-SUM:                            20            158            121            713
--------------------------------------------------------------------------------
-```
-
 Building
 ========
-    - Run "make DEBUG=TRUE"
+Requires the Arm GNU Toolchain for AArch64 bare-metal (`aarch64-none-elf-gcc`,
+`aarch64-none-elf-ld`, `aarch64-none-elf-objcopy`) and `FVP_Base_RevC-2xAEMvA` on `PATH`.
 
-> Optionally, adding "DEBUG=TRUE" results in additional logging messages being printed.
+    export PATH=/path/to/arm-gnu-toolchain/bin:$PATH
+    make
+
+This produces `image_smmu.axf` and `image_smmu.hex` in the repository root. If the toolchain is
+not on `PATH`, pass its prefix explicitly, for example:
+
+    make CROSS_COMPILE=/usr/local/src/arm-gnu-toolchain-13.3.rel1-x86_64-aarch64-none-elf/bin/aarch64-none-elf-
+
+> `-DDEBUG` is defined unconditionally in the Makefile, so debug output is always enabled.
 
 
 Running
 =======
+`make run` boots the generated Intel HEX image.
+Serial output is exposed on the FVP `terminal_0` TCP port (5000 by default).
+
 ```
 ● make run
 terminal_0: Listening for serial connection on port 5000
@@ -119,7 +116,7 @@ SMMU_IDR0: 0x80fe6bf
          TTF: 3
          S1P: 1
          S2P: 1
-SMMU_IDR1: 0xe739d10
+SMMU_IDR1: 0xe739d20
          ECMDQ: 0
          TABLES_PRESET: 0
          QUEUES_PRESET: 0

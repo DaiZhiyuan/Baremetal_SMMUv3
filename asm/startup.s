@@ -45,7 +45,42 @@ boot:
     MSR DAIFClr, #0xF
 
     /*
-     * Branch to scatter loading and C library init code
+     * Set up the stack
      */
-    .global  __main
-    B        __main
+    LDR x0, =__stack_top
+    MOV sp, x0
+
+    /*
+     * Copy .data from ROM to RAM
+     */
+    LDR x0, =__data_load_start
+    LDR x1, =__data_start
+    LDR x2, =__data_end
+copy_data:
+    CMP x1, x2
+    B.HS copy_data_done
+    LDR x3, [x0], #8
+    STR x3, [x1], #8
+    B copy_data
+copy_data_done:
+
+    /*
+     * Zero .bss
+     */
+    LDR x0, =__bss_start
+    LDR x1, =__bss_end
+zero_bss:
+    CMP x0, x1
+    B.HS zero_bss_done
+    STR xzr, [x0], #8
+    B zero_bss
+zero_bss_done:
+
+    /*
+     * Branch to C entry point
+     */
+    BL main
+
+hang:
+    WFI
+    B hang

@@ -1,62 +1,48 @@
-CC=armclang
-AS=armclang
-LD=armlink
+CROSS_COMPILE := aarch64-none-elf-
 
-ASFLAGS= -gdwarf-3 -c --target=aarch64-arm-none-eabi
-CFLAGS=  -gdwarf-3 -c --target=aarch64-arm-none-eabi -I"./include" -O1 -DDEBUG
+CC      := $(CROSS_COMPILE)gcc
+AS      := $(CROSS_COMPILE)gcc
+LD      := $(CROSS_COMPILE)gcc
+OBJCOPY := $(CROSS_COMPILE)objcopy
 
-# Select build rules based on Windows or Unix
-ifdef WINDIR
-DONE=@if exist $(1) if exist $(2) echo Build completed.
-RM=if exist $(1) del /q $(1)
-SHELL=$(WINDIR)\system32\cmd.exe
-else
-ifdef windir
-DONE=@if exist $(1) if exist $(2) echo Build completed.
-RM=if exist $(1) del /q $(1)
-SHELL=$(windir)\system32\cmd.exe
-else
-DONE=@if [ -f $(1) ]; then if [ -f $(2) ]; then echo Build completed.; fi; fi
-RM=rm -f $(1)
-endif
-endif
+ARCHFLAGS := -march=armv8-a
+ASFLAGS   := -gdwarf-3 -c $(ARCHFLAGS)
+CFLAGS    := -gdwarf-3 -c $(ARCHFLAGS) -I"./include" -O1 -DDEBUG \
+             -ffreestanding -ffunction-sections -fdata-sections \
+             -fno-stack-protector -fno-unwind-tables
+LDFLAGS   := -nostartfiles -specs=nosys.specs \
+             -Wl,-T,linker.ld -Wl,--entry=start64 \
+             -Wl,--gc-sections -Wl,--build-id=none
+
+START_OBJS := startup.o vector.o gicv3.o
+CORE_OBJS  := kernel.o pl011_uart.o interrupts.o
 
 TESTCASE_SRCS := $(wildcard test_case/*.c)
 TESTCASE_OBJS := $(TESTCASE_SRCS:.c=.o)
 
-all: ./prebuild/image_smmu.hex
-	$(call DONE,$(EXECUTABLE))
+OBJS := $(START_OBJS) $(CORE_OBJS) $(TESTCASE_OBJS)
+
+vpath %.s asm
+vpath %.c src
+
+all: image_smmu.axf image_smmu.hex
 
 clean:
-	@$(call RM, image_smmu.axf)
-	@$(call RM, image_smmu.hex)
-	@$(call RM, *.o)
-	@$(call RM, $(TESTCASE_OBJS))
+	@rm -f image_smmu.axf image_smmu.hex *.o $(TESTCASE_OBJS)
 
-$(TESTCASE_OBJS) : %.o : %.c
-	$(CC) ${CFLAGS} -o $@ -c $^
+%.o: %.c
+	$(CC) $(CFLAGS) -o $@ $<
 
-interrupts.o: ./src/interrupts.c
-	$(CC) ${CFLAGS} ./src/interrupts.c
+%.o: %.s
+	$(AS) $(ASFLAGS) -o $@ $<
 
-pl011_uart.o: ./src/pl011_uart.c
-	$(CC) ${CFLAGS} ./src/pl011_uart.c
+image_smmu.axf: $(OBJS) linker.ld
+	$(LD) $(LDFLAGS) $(OBJS) -o $@
 
-kernel.o: ./src/kernel.c
-	$(CC) ${CFLAGS} ./src/kernel.c
+image_smmu.hex: image_smmu.axf
+	$(OBJCOPY) -O ihex $< $@
 
-gicv3.o: ./asm/gicv3.s
-	$(AS) ${ASFLAGS} ./asm/gicv3.s
-
-vector.o: ./asm/vector.s
-	$(AS) ${ASFLAGS} ./asm/vector.s
-
-startup.o: ./asm/startup.s
-	$(AS) ${ASFLAGS} ./asm/startup.s
-
-image_smmu.axf: startup.o vector.o gicv3.o kernel.o pl011_uart.o interrupts.o $(TESTCASE_OBJS) scatter.txt
-	$(LD) --scatter=scatter.txt startup.o vector.o gicv3.o kernel.o pl011_uart.o interrupts.o $(TESTCASE_OBJS) -o image_smmu.axf --entry=start64
-	@fromelf --vhx image_smmu.axf --output image_smmu.hex
-
-run:
-	@FVP_Base_RevC-2xAEMvA -a ./prebuild/image_smmu.hex -C bp.secure_memory=false -C cache_state_modelled=0
+run: image_smmu.hex
+	@FVP_Base_RevC-2xAEMvA -a ./image_smmu.hex \
+		-C bp.secure_memory=false \
+		-C cache_state_modelled=0 

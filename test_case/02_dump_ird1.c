@@ -8,9 +8,9 @@ void dump_smmu_idr1(void)
 {
 	/*
 	 * FVP model:
-	 * 	 pci.pci_smmuv3.mmu.SMMU_IDR1=242457872
+	 *  pci.pci_smmuv3.mmu.SMMU_IDR1=242457888
 	 */
-	assert(smmu->SMMU_IDR1 == 0xe739d10);
+	assert(smmu->SMMU_IDR1 == 0xe739d20);
 
 #ifdef DEBUG
 	  printf("SMMU_IDR1: 0x%x\n", smmu->SMMU_IDR1);
