@@ -85,16 +85,11 @@ not on `PATH`, pass its prefix explicitly, for example:
 
 Running
 =======
-`make run` boots the generated Intel HEX image.
-Serial output is exposed on the FVP `terminal_0` TCP port (5000 by default).
+`make run` boots the generated Intel HEX image, runs to the cycle limit, and prints UART0
+output to stdout.
 
 ```
 ● make run
-terminal_0: Listening for serial connection on port 5000
-terminal_1: Listening for serial connection on port 5001
-terminal_2: Listening for serial connection on port 5002
-terminal_3: Listening for serial connection on port 5003
-
 Current Exception Level: [3]
 
 SMMU_IDR0: 0x80fe6bf

@@ -43,6 +43,10 @@ image_smmu.hex: image_smmu.axf
 	$(OBJCOPY) -O ihex $< $@
 
 run: image_smmu.hex
-	@FVP_Base_RevC-2xAEMvA -a ./image_smmu.hex \
+	@FVP_Base_RevC-2xAEMvA -q -a ./image_smmu.hex \
 		-C bp.secure_memory=false \
-		-C cache_state_modelled=0 
+		-C cache_state_modelled=0 \
+		-C pci.enable_device_id_checks=0 \
+		--cyclelimit 50000000 \
+		-C bp.pl011_uart0.unbuffered_output=1 \
+		-C bp.pl011_uart0.out_file=/dev/stdout
