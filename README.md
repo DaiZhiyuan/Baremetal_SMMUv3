@@ -176,6 +176,16 @@ make run
 `make run` boots `image_smmu.hex`, runs to a fixed cycle limit, and prints UART0 output directly
 to stdout. It exits cleanly after the tests finish, so it can be used in automation.
 
+For verbose SMMU configuration logs:
+
+```bash
+make debug
+```
+
+`make debug` cleans and rebuilds with `SMMU_DEBUG=1`. It prints the SMMU register initialization,
+command queue entries, page-table descriptors, STE/CD contents, and test-engine frame setup in
+addition to the normal test output.
+
 A successful run ends with:
 
 ```text
