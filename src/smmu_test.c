@@ -26,14 +26,34 @@
 #define S2_IPA 0x20000000UL
 #define NESTED_IOVA 0x30000000UL
 
+/*
+ * SMMUv3TestEngine control frames (platform instance).
+ *
+ * The engine exposes 64KB of user frames followed by 64KB of privileged
+ * frames. Each frame is 128 bytes, so frame N lives at:
+ *   user:       TE_USER_BASE + N * 128
+ *   privileged: TE_PRIV_BASE + N * 128
+ *
+ * These tests only use frame 0.
+ */
 #define TE_USER_BASE 0x2bfe0000UL
 #define TE_PRIV_BASE 0x2bff0000UL
 
+/* Values written to the user-frame cmd field and read back as status. */
 #define TE_ENGINE_HALTED 1
 #define TE_ENGINE_MEMCPY 2
 #define TE_ENGINE_ERROR 0xffffffffU
+
+/* Privileged-frame pctrl bits: bit0 = non-secure, bit8 = ATS, bit9 = PRI. */
 #define TE_PCTRL_NS 0x1
+
+/* Privileged-frame substreamid value meaning "no substream". */
 #define TE_NO_SUBSTREAMID 0xffffffffU
+
+/*
+ * Transaction attributes are packed as source[15:0] and destination[31:16].
+ * 0x42ff is normal WB read/write allocate, inner-shareable, non-secure.
+ */
 #define TE_ATTR_WBRAWA_SH 0x42ffU
 #define TE_ATTR_BOTH (TE_ATTR_WBRAWA_SH | (TE_ATTR_WBRAWA_SH << 16))
 
@@ -42,6 +62,27 @@
 #define CD_PTR_MASK 0x000fffffffffffc0ULL
 #define TTB_MASK 0x000ffffffffffff0ULL
 
+/*
+ * User frame, 128 bytes. Field offsets are fixed by the engine:
+ *
+ *   0x00 cmd:        command/status (HALTED, MEMCPY, ERROR, ...)
+ *   0x04 uctrl:      control bits, bit0 = MSI aborted, [31:16] = rate limit
+ *   0x08 launched:   number of transactions launched
+ *   0x0c returned:   number of transactions returned
+ *   0x10 msiaddress: MSI enable/doorbell (0 disables MSI for this test)
+ *   0x18 msidata:    MSI payload
+ *   0x1c msiattr:    MSI transaction attributes
+ *   0x20 attributes: source attributes [15:0], destination [31:16]
+ *   0x24 seed:       RNG seed
+ *   0x28 begin:      source address/IOVA, inclusive
+ *   0x30 end_incl:   source end address/IOVA, inclusive
+ *   0x38 stride:     access stride used by the work engine
+ *   0x40 udata[0]:   destination address/IOVA for MEMCPY
+ *   0x48..0x78:      remaining engine-specific user data
+ *
+ * The rest of the frame must only be written while cmd is HALTED, ERROR,
+ * or FRAME_MISCONFIGURED.
+ */
 struct te_uframe {
     volatile uint32_t cmd;
     volatile uint32_t uctrl;
@@ -58,6 +99,15 @@ struct te_uframe {
     volatile uint64_t udata[8];
 };
 
+/*
+ * Privileged frame, 128 bytes. Field offsets are fixed by the engine:
+ *
+ *   0x00 pctrl:      bit0 = NS, bit8 = ATS enable, bit9 = PRI enable
+ *   0x04 downstream_port_index: ignored by this test
+ *   0x08 streamid:   StreamID used for platform transactions (ignored for PCIe)
+ *   0x0c substreamid: SubstreamID/PASID, or TE_NO_SUBSTREAMID
+ *   0x10 pdata[14]:  reserved/private engine data
+ */
 struct te_pframe {
     volatile uint32_t pctrl;
     volatile uint32_t downstream_port_index;
@@ -374,12 +424,23 @@ static void te_run_memcpy(uint32_t sid, uint64_t src, uint64_t dst,
     volatile struct te_pframe *pf = (volatile struct te_pframe *)TE_PRIV_BASE;
     uint32_t i;
 
+    /*
+     * HALTED is the only state in which the rest of the frame is writable.
+     * Program the privileged frame first to select non-secure traffic,
+     * the platform StreamID, and "no substream".
+     */
     uf->cmd = TE_ENGINE_HALTED;
     pf->pctrl = TE_PCTRL_NS;
     pf->downstream_port_index = 0;
     pf->streamid = sid;
     pf->substreamid = TE_NO_SUBSTREAMID;
 
+    /*
+     * Disable MSI (msiaddress = 0) and poll cmd instead. The attributes
+     * apply the same normal, non-secure memory type to source and
+     * destination. begin/end_incl describe the source range and udata[0]
+     * is the destination for MEMCPY.
+     */
     uf->uctrl = 0;
     uf->msiaddress = 0;
     uf->msidata = 0;
@@ -394,6 +455,10 @@ static void te_run_memcpy(uint32_t sid, uint64_t src, uint64_t dst,
     for (i = 1; i < 8; i++)
         uf->udata[i] = 0;
 
+    /*
+     * Writing MEMCPY starts the engine. On success cmd returns to HALTED;
+     * on failure it becomes ERROR or FRAME_MISCONFIGURED.
+     */
     dsb_sy();
     uf->cmd = TE_ENGINE_MEMCPY;
     dsb_sy();
