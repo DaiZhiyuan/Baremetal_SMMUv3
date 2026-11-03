@@ -39,6 +39,7 @@ File list
 │   └── vector.s
 ├── include
 │   ├── pl011_uart.h
+│   ├── smmu_test.h
 │   ├── smmuv3.h
 │   └── testcase.h
 ├── LICENSE
@@ -48,7 +49,8 @@ File list
 ├── src
 │   ├── interrupts.c
 │   ├── kernel.c
-│   └── pl011_uart.c
+│   ├── pl011_uart.c
+│   └── smmu_test.c
 └── test_case
     ├── 01_dump_ird0.c
     ├── 02_dump_ird1.c
@@ -59,7 +61,10 @@ File list
     ├── 07_dump_idr6.c
     ├── 08_dump_iidr.c
     ├── 09_dump_aidr.c
-    └── 10_check_offset.c
+    ├── 10_check_offset.c
+    ├── 11_s1_translation.c
+    ├── 12_s2_translation.c
+    └── 13_s1s2_translation.c
 ```
 
 Building
@@ -173,3 +178,10 @@ SMMU_IDR6 offset:0x190
 === ALL TEST CASE PASS ===
 ```
 
+Translation tests
+=================
+`11_s1_translation.c`, `12_s2_translation.c`, and `13_s1s2_translation.c` exercise the SMMU
+using the non-secure StreamID 0 of the platform SMMUv3TestEngine at `0x2BFE0000`. The tests
+build 2MB block mappings in `0x80000000` DRAM, use the test engine to copy data through the
+SMMU, and verify the result. Stage 1, Stage 2, and nested Stage 1 + Stage 2 translations are
+covered.

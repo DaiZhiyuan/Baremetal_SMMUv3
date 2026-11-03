@@ -15,7 +15,7 @@ LDFLAGS   := -nostartfiles -specs=nosys.specs \
              -Wl,--gc-sections -Wl,--build-id=none
 
 START_OBJS := startup.o vector.o gicv3.o
-CORE_OBJS  := kernel.o pl011_uart.o interrupts.o
+CORE_OBJS  := kernel.o pl011_uart.o interrupts.o smmu_test.o
 
 TESTCASE_SRCS := $(wildcard test_case/*.c)
 TESTCASE_OBJS := $(TESTCASE_SRCS:.c=.o)

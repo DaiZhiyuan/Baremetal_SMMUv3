@@ -2,6 +2,7 @@
 #include <stdint.h>
 
 #include "pl011_uart.h"
+#include "smmu_test.h"
 #include "testcase.h"
 
 extern void gicInit(void);
@@ -45,6 +46,10 @@ int main(void)
     dump_smmu_aidr();
 
     check_offset();
+
+    test_s1_translation();
+    test_s2_translation();
+    test_s1s2_translation();
 
 #ifdef DEBUG
     printf("=== ALL TEST CASE PASS ===\n");

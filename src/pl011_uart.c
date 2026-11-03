@@ -155,13 +155,25 @@ int printf(const char *fmt, ...) {
             }
             break;
         case 'u':
-            uartPutUnsigned(va_arg(ap, unsigned int), 10, 0);
+            if (is_long) {
+                uartPutUnsigned(va_arg(ap, unsigned long), 10, 0);
+            } else {
+                uartPutUnsigned(va_arg(ap, unsigned int), 10, 0);
+            }
             break;
         case 'x':
-            uartPutUnsigned(va_arg(ap, unsigned int), 16, 0);
+            if (is_long) {
+                uartPutUnsigned(va_arg(ap, unsigned long), 16, 0);
+            } else {
+                uartPutUnsigned(va_arg(ap, unsigned int), 16, 0);
+            }
             break;
         case 'X':
-            uartPutUnsigned(va_arg(ap, unsigned int), 16, 1);
+            if (is_long) {
+                uartPutUnsigned(va_arg(ap, unsigned long), 16, 1);
+            } else {
+                uartPutUnsigned(va_arg(ap, unsigned int), 16, 1);
+            }
             break;
         case 'c':
             uartPutChar((char)va_arg(ap, int));
